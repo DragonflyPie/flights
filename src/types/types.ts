@@ -35,7 +35,7 @@ export interface Segment {
   arrivalAirport: Description;
   arrivalCity?: Description;
   travelDuration: number;
-  arrivalData: Date;
+  arrivalDate: Date;
   departureDate: Date;
   flightNumber: string;
   airline: Description;
@@ -44,4 +44,18 @@ export interface Segment {
 export interface Description {
   uid: string;
   caption: string;
+}
+
+export type SortingMethod = "priceAsc" | "priceDesc" | "duration";
+
+export enum Group {
+  MIN = "min",
+  MAX = "max",
+  AIRLINE = "airline",
+  DIRECT = "direct",
+}
+export interface Filter {
+  value: string | number | boolean;
+  group: Group;
+  func: Function;
 }

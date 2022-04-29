@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import CheckBoxFilter from "./CheckBoxFilter";
 import InputFilter from "./InputFilter";
+import RadioFilter from "./RadioFilter";
 import SideBar from "./SideBar";
 
 import {
@@ -28,7 +29,7 @@ function App() {
   const FLIGHTS_PER_PAGE = 5;
 
   const [flights, setFlights] = useState<Flight[]>([]);
-  const [sortedBy, setSortedBy] = useState<SortingMethod>("priceAsc");
+  const [sortBy, setSortBy] = useState<SortingMethod>("priceAsc");
   const [filters, setFilters] = useState<Filter[]>([]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(0);
@@ -135,8 +136,8 @@ function App() {
     }
   }, [flights]);
 
-  const handleRadio = (e: React.FormEvent<HTMLInputElement>) => {
-    setSortedBy(e.currentTarget.value as SortingMethod);
+  const handleRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSortBy(e.target.value as SortingMethod);
   };
 
   const updateMinPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,7 +176,7 @@ function App() {
     return flights.sort((a, b) => a.price - b.price);
   };
 
-  const renderedFlights = sortFlights(visibleFlights, sortedBy)
+  const renderedFlights = sortFlights(visibleFlights, sortBy)
     .slice(0, lastElementOnPage)
     .map((flight) => (
       <div className="flight" key={flight.token}>
@@ -239,36 +240,24 @@ function App() {
   return (
     <div className="app">
       <div className="radio">
-        <div className="radio__group">
-          <input
-            id="priceAsc"
-            type="radio"
-            value="priceAsc"
-            checked={sortedBy === "priceAsc"}
-            onChange={handleRadio}
-          />
-          <label htmlFor="priceAsc"> - по возрастанию цены</label>
-        </div>
-        <div className="radio__group">
-          <input
-            id="priceDesc"
-            type="radio"
-            value="priceDesc"
-            checked={sortedBy === "priceDesc"}
-            onChange={handleRadio}
-          />
-          <label htmlFor="priceDesc"> - по убыванию цены</label>
-        </div>
-        <div className="radio__group">
-          <input
-            id="duration"
-            type="radio"
-            value="duration"
-            checked={sortedBy === "duration"}
-            onChange={handleRadio}
-          />
-          <label htmlFor="duration"> - по времени в пути</label>
-        </div>
+        <RadioFilter
+          value="priceAsc"
+          label="по возрастанию цены"
+          checked={sortBy === "priceAsc"}
+          onChange={handleRadio}
+        />
+        <RadioFilter
+          value="priceDesc"
+          label="по убыванию цены"
+          checked={sortBy === "priceDesc"}
+          onChange={handleRadio}
+        />
+        <RadioFilter
+          value="duration"
+          label="по времени в пути"
+          checked={sortBy === "duration"}
+          onChange={handleRadio}
+        />
       </div>
       {getPossibleAirlines(flights).map((airline) => (
         <CheckBoxFilter

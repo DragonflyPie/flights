@@ -59,3 +59,9 @@ export interface Filter {
   group: Group;
   func: Function;
 }
+
+export interface FilterParams {
+  filters: Filter[];
+  flights: Flight[];
+  facet?: "price" | "airline" | "directness";
+}

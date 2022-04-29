@@ -8,6 +8,7 @@ import SideBar from "./SideBar";
 
 import {
   Filter,
+  FilterParams,
   Flight,
   FlightRaw,
   Group,
@@ -26,7 +27,7 @@ import {
 } from "./utils";
 
 function App() {
-  const FLIGHTS_PER_PAGE = 5;
+  const FLIGHTS_PER_PAGE = 50;
 
   const [flights, setFlights] = useState<Flight[]>([]);
   const [sortBy, setSortBy] = useState<SortingMethod>("priceAsc");
@@ -56,24 +57,40 @@ function App() {
   };
 
   const filterByMinPrice = (flight: Flight, minPrice: number) => {
-    return flight.price >= minPrice;
+    if (minPrice) {
+      return flight.price >= minPrice;
+    }
+    return true;
   };
 
   const filterByMaxPrice = (flight: Flight, maxPrice: number) => {
-    return flight.price <= maxPrice;
+    if (maxPrice) {
+      return flight.price <= maxPrice;
+    }
+    return true;
   };
 
-  const filterFlights = (flights: Flight[], filters: Filter[]) => {
-    return flights.filter((flight) => {
-      const showByAirline = filterByAirline(flight, filters);
+  const filterFlights = (filterParams: FilterParams) => {
+    return filterParams.flights.filter((flight) => {
+      const showByAirline = filterByAirline(flight, filterParams.filters);
       const showByMinPrice = filterByMinPrice(flight, minPrice);
       const showByMaxPrice = filterByMaxPrice(flight, maxPrice);
       const showByDirect = filterByDirectness(flight, filters);
+      if (filterParams.facet) {
+        switch (filterParams.facet) {
+          case "airline":
+            return showByDirect && showByMaxPrice && showByMinPrice;
+          case "price":
+            return showByAirline && showByDirect;
+          case "directness":
+            return showByAirline && showByMaxPrice && showByMinPrice;
+        }
+      }
       return showByAirline && showByDirect && showByMaxPrice && showByMinPrice;
     });
   };
 
-  const visibleFlights = filterFlights(flights, filters);
+  const filteredFlights = filterFlights({ flights, filters });
 
   const lastElementOnPage = FLIGHTS_PER_PAGE * page;
 
@@ -129,10 +146,23 @@ function App() {
     getData();
   }, []);
 
+  // useEffect(() => {
+  //   if (flights.length) {
+  //     if (filterFlights({ flights, filters, facet: "price" }).length) {
+  //       setMaxPrice(
+  //         getMaxPrice(filterFlights({ flights, filters, facet: "price" }))
+  //       );
+  //       setMinPrice(
+  //         getMinPrice(filterFlights({ flights, filters, facet: "price" }))
+  //       );
+  //     }
+  //   }
+  // }, [flights, filters]);
+
   useEffect(() => {
     if (flights.length) {
-      setMaxPrice(getMaxPrice(flights));
       setMinPrice(getMinPrice(flights));
+      setMaxPrice(getMaxPrice(flights));
     }
   }, [flights]);
 
@@ -142,6 +172,8 @@ function App() {
 
   const updateMinPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
+    if (value) {
+    }
     // if (value < getMinPrice(flights)) {
     //   setMinPrice(getMinPrice(flights));
     //   return;
@@ -176,7 +208,7 @@ function App() {
     return flights.sort((a, b) => a.price - b.price);
   };
 
-  const renderedFlights = sortFlights(visibleFlights, sortBy)
+  const renderedFlights = sortFlights(filteredFlights, sortBy)
     .slice(0, lastElementOnPage)
     .map((flight) => (
       <div className="flight" key={flight.token}>
@@ -239,78 +271,102 @@ function App() {
 
   return (
     <div className="app">
-      <div className="radio">
-        <RadioFilter
-          value="priceAsc"
-          label="по возрастанию цены"
-          checked={sortBy === "priceAsc"}
-          onChange={handleRadio}
-        />
-        <RadioFilter
-          value="priceDesc"
-          label="по убыванию цены"
-          checked={sortBy === "priceDesc"}
-          onChange={handleRadio}
-        />
-        <RadioFilter
-          value="duration"
-          label="по времени в пути"
-          checked={sortBy === "duration"}
-          onChange={handleRadio}
-        />
-      </div>
-      {getPossibleAirlines(flights).map((airline) => (
+      <div className="TEMPORARY_COLUMN">
+        <div className="radio">
+          <RadioFilter
+            value="priceAsc"
+            label="по возрастанию цены"
+            checked={sortBy === "priceAsc"}
+            onChange={handleRadio}
+          />
+          <RadioFilter
+            value="priceDesc"
+            label="по убыванию цены"
+            checked={sortBy === "priceDesc"}
+            onChange={handleRadio}
+          />
+          <RadioFilter
+            value="duration"
+            label="по времени в пути"
+            checked={sortBy === "duration"}
+            onChange={handleRadio}
+          />
+        </div>
+        <hr></hr>
+        {getPossibleAirlines(flights).map((airline) => (
+          <CheckBoxFilter
+            key={airline}
+            value={airline}
+            active={filterExist({ value: airline, group: Group.AIRLINE })}
+            avaliable={filterFlights({
+              flights,
+              filters,
+              facet: "airline",
+            }).some((flight) => flight.carrier.caption === airline)}
+            onChange={() =>
+              toggleFilter({
+                value: airline,
+                group: Group.AIRLINE,
+                func: (flight: Flight) => flight.carrier.caption === airline,
+              })
+            }
+          />
+        ))}
+        <hr></hr>
         <CheckBoxFilter
-          key={airline}
-          value={airline}
-          active={filterExist({ value: airline, group: Group.AIRLINE })}
+          value={"Без пересадок"}
+          active={filterExist({ value: true, group: Group.DIRECT })}
+          avaliable={filterFlights({
+            flights,
+            filters,
+            facet: "directness",
+          }).some((flight) =>
+            flight.legs.every((leg) => leg.segments.length === 1)
+          )}
           onChange={() =>
             toggleFilter({
-              value: airline,
-              group: Group.AIRLINE,
-              func: (flight: Flight) => flight.carrier.caption === airline,
+              value: true,
+              group: Group.DIRECT,
+              func: (flight: Flight) =>
+                flight.legs.every((leg) => leg.segments.length === 1),
             })
           }
         />
-      ))}
-      <CheckBoxFilter
-        value={"Без пересадок"}
-        active={filterExist({ value: true, group: Group.DIRECT })}
-        onChange={() =>
-          toggleFilter({
-            value: true,
-            group: Group.DIRECT,
-            func: (flight: Flight) =>
-              flight.legs.every((leg) => leg.segments.length === 1),
-          })
-        }
-      />
-      <CheckBoxFilter
-        value={"1 пересадка"}
-        active={filterExist({ value: false, group: Group.DIRECT })}
-        onChange={() =>
-          toggleFilter({
-            value: false,
-            group: Group.DIRECT,
-            func: (flight: Flight) =>
-              flight.legs.some((leg) => leg.segments.length > 1),
-          })
-        }
-      />
-      <InputFilter
-        value={minPrice}
-        name="от"
-        onChange={updateMinPrice}
-        min={getMinPrice(flights)}
-        max={getMaxPrice(flights)}
-      />
-      <InputFilter
-        value={maxPrice}
-        name="до"
-        onChange={updateMaxPrice}
-        min={getMinPrice(flights)}
-        max={getMaxPrice(flights)}
-      />
+        <CheckBoxFilter
+          value={"1 пересадка"}
+          active={filterExist({ value: false, group: Group.DIRECT })}
+          avaliable={filterFlights({
+            flights,
+            filters,
+            facet: "directness",
+          }).some((flight) =>
+            flight.legs.some((leg) => leg.segments.length > 1)
+          )}
+          onChange={() =>
+            toggleFilter({
+              value: false,
+              group: Group.DIRECT,
+              func: (flight: Flight) =>
+                flight.legs.some((leg) => leg.segments.length > 1),
+            })
+          }
+        />
+        <hr></hr>
+        <InputFilter
+          value={minPrice}
+          name="от"
+          onChange={updateMinPrice}
+          min={getMinPrice(flights)}
+          max={getMaxPrice(flights)}
+        />
+        <InputFilter
+          value={maxPrice}
+          name="до"
+          onChange={updateMaxPrice}
+          min={getMinPrice(flights)}
+          max={getMaxPrice(flights)}
+        />
+      </div>
 
       {/* <SideBar /> */}
       <div className="">

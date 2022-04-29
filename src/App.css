@@ -8,6 +8,7 @@
 
 .app {
   display: flex;
+  gap: 3rem;
 }
 
 .filters__price {
@@ -23,4 +24,13 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+.TEMPORARY_COLUMN {
+  display: flex;
+  flex-direction: column;
+}
+
+hr {
+  width: 100%;
 }

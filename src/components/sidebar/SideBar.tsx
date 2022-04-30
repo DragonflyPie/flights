@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import CheckBoxFilter from "./CheckBoxFilter";
-import InputFilter from "./InputFilter";
-import RadioFilter from "./RadioFilter";
-import { Filter, Flight, FlightRaw, Group, SortingMethod } from "./types/types";
+import CheckBoxFilter from "../filters/CheckBoxFilter";
+import InputFilter from "../filters/InputFilter";
+import RadioFilter from "../filters/RadioFilter";
+import { Filter, Flight, Group, SortingMethod } from "../../types/types";
+import { flattenData } from "../utils/utils";
 import {
   filterFlights,
-  flattenData,
   getDuration,
   getFlightsByAirline,
   getMaxPrice,
   getMinPrice,
   getPossibleAirlines,
-} from "./utils";
+} from "../filters/filtersUtils";
 
 type SideBarProps = {
   updateFlightsToRender: (flights: Flight[]) => void;

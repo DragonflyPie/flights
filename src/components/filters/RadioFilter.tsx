@@ -1,5 +1,5 @@
 import React from "react";
-import { SortingMethod } from "./types/types";
+import { SortingMethod } from "../../types/types";
 
 type RadioFilterProps = {
   value: SortingMethod;

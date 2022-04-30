@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Flight } from "./types/types";
-import { capitalize, getDate, getHours, getTime } from "./utils";
+import { Flight } from "../../types/types";
+import { capitalize, getDate, getHours, getTime } from "../utils/utils";
 import { WiTime4 } from "react-icons/wi";
 
 type FlightListProps = {

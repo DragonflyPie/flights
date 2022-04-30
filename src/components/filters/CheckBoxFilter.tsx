@@ -1,5 +1,5 @@
 import React from "react";
-import { sliceAirline } from "./utils";
+import { sliceAirline } from "../utils/utils";
 
 type CheckBoxFilterProps = {
   value: string;

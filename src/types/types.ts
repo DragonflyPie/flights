@@ -49,8 +49,6 @@ export interface Description {
 export type SortingMethod = "priceAsc" | "priceDesc" | "duration";
 
 export enum Group {
-  // MIN = "min",
-  // MAX = "max",
   AIRLINE = "airline",
   DIRECTNESS = "direct",
 }

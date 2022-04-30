@@ -73,7 +73,7 @@ export const flattenData = (data: FlightRaw[]): Flight[] => {
   return flattenFlights;
 };
 
-export const filterByAirline = (flight: Flight, filters: Filter[]) => {
+export const filterByAirlines = (flight: Flight, filters: Filter[]) => {
   const airlineFilters = filters.filter(
     (filter) => filter.group === Group.AIRLINE
   );
@@ -109,7 +109,7 @@ export const filterByMaxPrice = (flight: Flight, maxPrice: number) => {
 
 export const filterFlights = (filterParams: FilterParams) => {
   return filterParams.flights.filter((flight) => {
-    const showByAirline = filterByAirline(flight, filterParams.filters);
+    const showByAirline = filterByAirlines(flight, filterParams.filters);
     const showByMinPrice = filterByMinPrice(flight, filterParams.min);
     const showByMaxPrice = filterByMaxPrice(flight, filterParams.max);
     const showByDirect = filterByDirectness(flight, filterParams.filters);
@@ -125,4 +125,15 @@ export const filterFlights = (filterParams: FilterParams) => {
     }
     return showByAirline && showByDirect && showByMaxPrice && showByMinPrice;
   });
+};
+
+export const getFlightsByAirline = (flights: Flight[], airline: string) => {
+  return flights.filter((flight) => flight.carrier.caption === airline);
+};
+
+export const sliceAirline = (name: string) => {
+  if (name.length > 19) {
+    return name.slice(0, 14) + "...";
+  }
+  return name;
 };

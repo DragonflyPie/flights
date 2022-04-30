@@ -7,6 +7,7 @@ import {
   filterFlights,
   flattenData,
   getDuration,
+  getFlightsByAirline,
   getMaxPrice,
   getMinPrice,
   getPossibleAirlines,
@@ -142,27 +143,6 @@ const SideBar = ({ updateFlightsToRender }: SideBarProps) => {
       <div className="sidebar__directness">
         <h2>Фильтровать</h2>
         <CheckBoxFilter
-          value={"Без пересадок"}
-          active={filterExist({ value: "direct", group: Group.DIRECTNESS })}
-          avaliable={filterFlights({
-            flights,
-            filters,
-            min: minPrice,
-            max: maxPrice,
-            facet: "directness",
-          }).some((flight) =>
-            flight.legs.every((leg) => leg.segments.length === 1)
-          )}
-          onChange={() =>
-            toggleFilter({
-              value: "direct",
-              group: Group.DIRECTNESS,
-              func: (flight: Flight) =>
-                flight.legs.every((leg) => leg.segments.length === 1),
-            })
-          }
-        />
-        <CheckBoxFilter
           value={"1 пересадка"}
           active={filterExist({ value: "indirect", group: Group.DIRECTNESS })}
           avaliable={filterFlights({
@@ -183,12 +163,33 @@ const SideBar = ({ updateFlightsToRender }: SideBarProps) => {
             })
           }
         />
+        <CheckBoxFilter
+          value={"без пересадок"}
+          active={filterExist({ value: "direct", group: Group.DIRECTNESS })}
+          avaliable={filterFlights({
+            flights,
+            filters,
+            min: minPrice,
+            max: maxPrice,
+            facet: "directness",
+          }).some((flight) =>
+            flight.legs.every((leg) => leg.segments.length === 1)
+          )}
+          onChange={() =>
+            toggleFilter({
+              value: "direct",
+              group: Group.DIRECTNESS,
+              func: (flight: Flight) =>
+                flight.legs.every((leg) => leg.segments.length === 1),
+            })
+          }
+        />
       </div>
 
       <div className="sidebar__price">
         <h2>Цена</h2>
-        <InputFilter value={minPrice} name="от" onChange={updateMinPrice} />
-        <InputFilter value={maxPrice} name="до" onChange={updateMaxPrice} />
+        <InputFilter value={minPrice} name="От " onChange={updateMinPrice} />
+        <InputFilter value={maxPrice} name="До " onChange={updateMaxPrice} />
       </div>
       <div className="sidebar__airlines">
         <h2>Авиакомпании</h2>
@@ -196,6 +197,7 @@ const SideBar = ({ updateFlightsToRender }: SideBarProps) => {
           <CheckBoxFilter
             key={airline}
             value={airline}
+            airlineMinPrice={getMinPrice(getFlightsByAirline(flights, airline))}
             active={filterExist({
               value: airline,
               group: Group.AIRLINE,

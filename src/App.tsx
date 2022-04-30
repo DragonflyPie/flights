@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import "./App.css";
+import "./App.scss";
 import FlightsList from "./FlightsList";
 import SideBar from "./SideBar";
 import { Flight } from "./types/types";

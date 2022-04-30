@@ -63,5 +63,7 @@ export interface Filter {
 export interface FilterParams {
   filters: Filter[];
   flights: Flight[];
+  min: number;
+  max: number;
   facet?: "price" | "airline" | "directness";
 }

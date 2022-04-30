@@ -1,4 +1,4 @@
-import { Flight } from "./types/types";
+import { Filter, FilterParams, Flight, FlightRaw, Group } from "./types/types";
 
 const dayjs = require("dayjs");
 require("dayjs/locale/ru");
@@ -59,4 +59,70 @@ export const getDuration = (flight: Flight) => {
 
 export const getLastFlightOnPage = (flightsPerPage: number, page: number) => {
   return flightsPerPage * page;
+};
+
+export const flattenData = (data: FlightRaw[]): Flight[] => {
+  const flattenFlights = data.map((flight) => {
+    return {
+      token: flight.flightToken,
+      price: flight.flight.price.total.amount,
+      carrier: flight.flight.carrier,
+      legs: flight.flight.legs,
+    };
+  });
+  return flattenFlights;
+};
+
+export const filterByAirline = (flight: Flight, filters: Filter[]) => {
+  const airlineFilters = filters.filter(
+    (filter) => filter.group === Group.AIRLINE
+  );
+  if (!airlineFilters.length) {
+    return true;
+  }
+  return airlineFilters.some((filter) => filter.func(flight));
+};
+
+export const filterByDirectness = (flight: Flight, filters: Filter[]) => {
+  const directnessFilters = filters.filter(
+    (filter) => filter.group === Group.DIRECTNESS
+  );
+  if (!directnessFilters.length) {
+    return true;
+  }
+  return directnessFilters.some((filter) => filter.func(flight));
+};
+
+export const filterByMinPrice = (flight: Flight, minPrice: number) => {
+  if (minPrice) {
+    return flight.price >= minPrice;
+  }
+  return true;
+};
+
+export const filterByMaxPrice = (flight: Flight, maxPrice: number) => {
+  if (maxPrice) {
+    return flight.price <= maxPrice;
+  }
+  return true;
+};
+
+export const filterFlights = (filterParams: FilterParams) => {
+  return filterParams.flights.filter((flight) => {
+    const showByAirline = filterByAirline(flight, filterParams.filters);
+    const showByMinPrice = filterByMinPrice(flight, filterParams.min);
+    const showByMaxPrice = filterByMaxPrice(flight, filterParams.max);
+    const showByDirect = filterByDirectness(flight, filterParams.filters);
+    if (filterParams.facet) {
+      switch (filterParams.facet) {
+        case "airline":
+          return showByDirect && showByMaxPrice && showByMinPrice;
+        case "price":
+          return showByAirline && showByDirect;
+        case "directness":
+          return showByAirline && showByMaxPrice && showByMinPrice;
+      }
+    }
+    return showByAirline && showByDirect && showByMaxPrice && showByMinPrice;
+  });
 };

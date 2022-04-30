@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Flight } from "./types/types";
 import { capitalize, getDate, getHours, getTime } from "./utils";
 
 type FlightListProps = {
-  flightsOnPage: number;
   flightsToRender: Flight[];
 };
 
-const FlightsList = ({ flightsToRender, flightsOnPage }: FlightListProps) => {
+const FlightsList = ({ flightsToRender }: FlightListProps) => {
+  const FLIGHTS_PER_PAGE = 5;
+  const [page, setPage] = useState(1);
+
+  const flightsOnPage = FLIGHTS_PER_PAGE * page;
+
+  useEffect(() => {
+    setPage(1);
+  }, [flightsToRender]);
+
+  const loadMore = () => {
+    setPage(page + 1);
+  };
   return (
     <div className="">
       {flightsToRender.slice(0, flightsOnPage).map((flight) => (
@@ -60,11 +71,15 @@ const FlightsList = ({ flightsToRender, flightsOnPage }: FlightListProps) => {
                   ? `${leg.segments[0].airline.caption}, ${leg.segments[1].airline.caption}`
                   : leg.segments[0].airline.caption}
               </div>
-              <hr></hr>
+              {index === 0 && <hr></hr>}
             </div>
           ))}
         </div>
       ))}
+
+      {flightsToRender.length > flightsOnPage && (
+        <button onClick={loadMore}>Показать ещё</button>
+      )}
     </div>
   );
 };

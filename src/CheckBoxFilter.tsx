@@ -33,7 +33,7 @@ const CheckBoxFilter = ({
           className={airlineMinPrice ? "sidebar__airline-label" : ""}
         >
           &nbsp;- {sliceAirline(value)}
-          <span>от {airlineMinPrice}р.</span>
+          <span>от {airlineMinPrice} р.</span>
         </label>
       )}
     </div>

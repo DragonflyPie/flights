@@ -1,0 +1,120 @@
+@use "./base";
+
+.flight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+
+  &__price-bar {
+    padding: 0.25em 0.5em;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    background-color: base.$blue;
+    color: white;
+  }
+
+  &__column {
+    font-size: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  &__price {
+    font-size: 1.3rem;
+  }
+
+  &__button {
+    background-color: base.$orange;
+    width: 100%;
+    border: none;
+    line-height: 2.5em;
+    color: white;
+    font-size: 1rem;
+  }
+
+  &__leg {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    align-items: center;
+    width: 100%;
+  }
+
+  &__airports {
+    padding: 0 2em;
+  }
+
+  &__line {
+    width: 95%;
+    border-top: 0.1px solid rgb(223, 223, 223);
+  }
+
+  & .link {
+    color: base.$blue;
+  }
+
+  &__dt {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 0.2em;
+  }
+
+  &__dt-group {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.25em;
+    align-items: flex-end;
+  }
+
+  &__date {
+    font-size: 1rem;
+    color: base.$blue;
+  }
+
+  &__time {
+    font-size: 1.2rem;
+  }
+
+  &__change {
+    color: base.$orange;
+    width: 80%;
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    &::before,
+    &::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #000;
+      content: "";
+      flex: 1 1;
+      border-bottom: 1px solid;
+      margin: auto;
+      margin-right: 10px;
+      color: hsla(0, 0%, 50%, 0.7);
+    }
+
+    &:not(:empty)::before {
+      margin-right: 0.25em;
+    }
+    &:not(:empty)::after {
+      margin-left: 0.25em;
+    }
+  }
+
+  &__change-line {
+    width: 80%;
+    // border-top: ;
+    color: hsla(0, 0%, 50%, 0.7);
+  }
+
+  &__thick-line {
+    border: 1px solid base.$blue;
+  }
+}

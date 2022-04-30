@@ -1,0 +1,22 @@
+@use "./base";
+
+.app {
+  display: flex;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+  gap: 2rem;
+  justify-content: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.flights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  align-items: center;
+
+  &__button {
+    width: 14rem;
+    line-height: 1.5rem;
+    font-size: large;
+  }
+}

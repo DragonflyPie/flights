@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler } from "react";
+import React from "react";
 import { SortingMethod } from "./types/types";
 
 type RadioFilterProps = {

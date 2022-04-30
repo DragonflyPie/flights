@@ -15,7 +15,7 @@ export const capitalize = (name: string | undefined): string => {
 };
 
 export const getDate = (dt: Date): string => {
-  const date = dayjs(dt).locale("ru").format("DD, MMM dd");
+  const date = dayjs(dt).locale("ru").format("DD MMM dd");
   return date;
 };
 
@@ -28,7 +28,7 @@ export const getHours = (duration: Number): string => {
   const hours = dayjs
     .duration(duration, "Minutes")
     .locale("ru")
-    .format("HHч mmм");
+    .format("HH ч mm мин");
   return hours;
 };
 

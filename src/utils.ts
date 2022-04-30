@@ -56,3 +56,7 @@ export const getMaxPrice = (flights: Flight[]) => {
 export const getDuration = (flight: Flight) => {
   return flight.legs[0].duration + flight.legs[1].duration;
 };
+
+export const getLastFlightOnPage = (flightsPerPage: number, page: number) => {
+  return flightsPerPage * page;
+};

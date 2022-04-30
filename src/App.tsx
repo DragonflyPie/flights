@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import "./App.css";
 import CheckBoxFilter from "./CheckBoxFilter";
+import FlightsList from "./FlightsList";
 import InputFilter from "./InputFilter";
 import RadioFilter from "./RadioFilter";
 
@@ -18,6 +19,7 @@ import {
   getDate,
   getDuration,
   getHours,
+  getLastFlightOnPage,
   getMaxPrice,
   getMinPrice,
   getPossibleAirlines,
@@ -33,6 +35,8 @@ function App() {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(0);
   const [page, setPage] = useState(1);
+
+  const flightsOnPage = FLIGHTS_PER_PAGE * page;
 
   const filterByAirline = (flight: Flight, filters: Filter[]) => {
     const airlineFilters = filters.filter(
@@ -149,19 +153,6 @@ function App() {
     getData();
   }, []);
 
-  // useEffect(() => {
-  //   if (flights.length) {
-  //     if (filterFlights({ flights, filters, facet: "price" }).length) {
-  //       setMaxPrice(
-  //         getMaxPrice(filterFlights({ flights, filters, facet: "price" }))
-  //       );
-  //       setMinPrice(
-  //         getMinPrice(filterFlights({ flights, filters, facet: "price" }))
-  //       );
-  //     }
-  //   }
-  // }, [flights, filters]);
-
   useEffect(() => {
     if (flights.length) {
       setMinPrice(getMinPrice(flights));
@@ -176,14 +167,6 @@ function App() {
   const updateMinPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     if (value) {
-      // if (value < getMinPrice(flights)) {
-      //   setMinPrice(getMinPrice(flights));
-      //   return;
-      // }
-      // if (value > getMaxPrice(flights)) {
-      //   setMaxPrice(getMaxPrice(flights));
-      //   return;
-      // }
       setMinPrice(value);
     }
   };
@@ -193,14 +176,6 @@ function App() {
     if (value) {
       setMaxPrice(value);
     }
-    // if (value < getMinPrice(flights)) {
-    //   setMinPrice(getMinPrice(flights));
-    //   return;
-    // }
-    // if (value > getMaxPrice(flights)) {
-    //   setMaxPrice(getMaxPrice(flights));
-    //   return;
-    // }
   };
 
   const sortFlights = (flights: Flight[], sortBy: SortingMethod) => {
@@ -213,62 +188,7 @@ function App() {
     return flights.sort((a, b) => a.price - b.price);
   };
 
-  const renderedFlights = sortFlights(filteredFlights, sortBy)
-    .slice(0, lastElementOnPage)
-    .map((flight) => (
-      <div className="flight" key={flight.token}>
-        <div className="flight__price">{flight.price}</div>
-
-        {flight.legs.map((leg, index) => (
-          <div className="flight__leg" key={index}>
-            <div className="">
-              {capitalize(leg.segments[0].departureCity?.caption)},{" "}
-              {leg.segments[0].departureAirport.caption.toUpperCase()}(
-              {leg.segments[0].departureAirport.uid.toLocaleUpperCase()})&rarr;
-              {capitalize(
-                leg.segments[leg.segments.length - 1].arrivalCity?.caption
-              )}
-              ,
-              {leg.segments[
-                leg.segments.length - 1
-              ].arrivalAirport.caption.toLocaleUpperCase()}
-              (
-              {leg.segments[
-                leg.segments.length - 1
-              ].arrivalAirport.uid.toLocaleUpperCase()}
-              )
-            </div>
-            <div className="flight__dt">
-              <div className="flight__time">
-                {getTime(leg.segments[0].departureDate)}
-              </div>
-              <div className="flight__date">
-                {getDate(leg.segments[0].departureDate)}
-              </div>
-              <div className="">{getHours(leg.duration)}</div>
-              <div className="flight__date">
-                {getDate(leg.segments[0].arrivalDate)}
-              </div>
-              <div className="flight__time">
-                {getTime(leg.segments[0].arrivalDate)}
-              </div>
-            </div>
-            <div className="">
-              {leg.segments.length !== 1 && (
-                <div className="">{leg.segments.length - 1} пересадка</div>
-              )}
-            </div>
-            <div className="">
-              {leg.segments[1] &&
-              leg.segments[0].airline.uid !== leg.segments[1].airline.uid
-                ? `${leg.segments[0].airline.caption}, ${leg.segments[1].airline.caption}`
-                : leg.segments[0].airline.caption}
-            </div>
-            <hr></hr>
-          </div>
-        ))}
-      </div>
-    ));
+  const flightsToRender = sortFlights(filteredFlights, sortBy);
 
   const loadMore = () => {
     setPage(page + 1);
@@ -378,8 +298,14 @@ function App() {
 
       {/* <SideBar /> */}
       <div className="">
-        <div className="App">{renderedFlights}</div>
-        <button onClick={loadMore}>Показать ещё</button>
+        <FlightsList
+          flightsOnPage={flightsOnPage}
+          flightsToRender={flightsToRender}
+        />
+
+        {flightsToRender.length > flightsOnPage && (
+          <button onClick={loadMore}>Показать ещё</button>
+        )}
       </div>
     </div>
   );

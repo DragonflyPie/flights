@@ -49,13 +49,13 @@ export interface Description {
 export type SortingMethod = "priceAsc" | "priceDesc" | "duration";
 
 export enum Group {
-  MIN = "min",
-  MAX = "max",
+  // MIN = "min",
+  // MAX = "max",
   AIRLINE = "airline",
-  DIRECT = "direct",
+  DIRECTNESS = "direct",
 }
 export interface Filter {
-  value: string | number | boolean;
+  value: string;
   group: Group;
   func: Function;
 }

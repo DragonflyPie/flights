@@ -4,7 +4,6 @@ import "./App.css";
 import CheckBoxFilter from "./CheckBoxFilter";
 import InputFilter from "./InputFilter";
 import RadioFilter from "./RadioFilter";
-import SideBar from "./SideBar";
 
 import {
   Filter,
@@ -12,7 +11,6 @@ import {
   Flight,
   FlightRaw,
   Group,
-  Segment,
   SortingMethod,
 } from "./types/types";
 import {
@@ -27,7 +25,7 @@ import {
 } from "./utils";
 
 function App() {
-  const FLIGHTS_PER_PAGE = 50;
+  const FLIGHTS_PER_PAGE = 5;
 
   const [flights, setFlights] = useState<Flight[]>([]);
   const [sortBy, setSortBy] = useState<SortingMethod>("priceAsc");
@@ -48,7 +46,7 @@ function App() {
 
   const filterByDirectness = (flight: Flight, filters: Filter[]) => {
     const directnessFilters = filters.filter(
-      (filter) => filter.group === Group.DIRECT
+      (filter) => filter.group === Group.DIRECTNESS
     );
     if (!directnessFilters.length) {
       return true;
@@ -94,31 +92,36 @@ function App() {
 
   const lastElementOnPage = FLIGHTS_PER_PAGE * page;
 
-  const filterExist = (params: Omit<Filter, "func">) => {
+  const filterExist = ({ value, group }: { value: string; group: Group }) => {
     const exists = filters.find(
-      (filter) => filter.value === params.value && filter.group === params.group
+      (filter) => filter.value === value && filter.group === group
     );
     return exists !== undefined;
   };
 
-  const addFilter = (newFilter: Filter) => {
-    setFilters((currentFilters) => [...currentFilters, newFilter]);
+  const addFilter = (filterToAdd: Filter) => {
+    setFilters((currentFilters) => [...currentFilters, filterToAdd]);
   };
 
-  const removeFilter = (params: Omit<Filter, "func">) => {
+  const removeFilter = (filterToRemove: Filter) => {
     setFilters((currentFilters) =>
       currentFilters.filter(
         (filter) =>
-          !(filter.value === params.value && filter.group === params.group)
+          !(
+            filter.value === filterToRemove.value &&
+            filter.group === filterToRemove.group
+          )
       )
     );
   };
 
-  const toggleFilter = (filter: Filter) => {
-    if (filterExist({ value: filter.value, group: filter.group })) {
-      removeFilter({ value: filter.value, group: filter.group });
+  const toggleFilter = (filterToToggle: Filter) => {
+    if (
+      filterExist({ value: filterToToggle.value, group: filterToToggle.group })
+    ) {
+      removeFilter(filterToToggle);
     } else {
-      addFilter(filter);
+      addFilter(filterToToggle);
     }
   };
 
@@ -173,6 +176,22 @@ function App() {
   const updateMinPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     if (value) {
+      // if (value < getMinPrice(flights)) {
+      //   setMinPrice(getMinPrice(flights));
+      //   return;
+      // }
+      // if (value > getMaxPrice(flights)) {
+      //   setMaxPrice(getMaxPrice(flights));
+      //   return;
+      // }
+      setMinPrice(value);
+    }
+  };
+
+  const updateMaxPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (value) {
+      setMaxPrice(value);
     }
     // if (value < getMinPrice(flights)) {
     //   setMinPrice(getMinPrice(flights));
@@ -182,20 +201,6 @@ function App() {
     //   setMaxPrice(getMaxPrice(flights));
     //   return;
     // }
-    setMinPrice(value);
-  };
-
-  const updateMaxPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    // if (value < getMinPrice(flights)) {
-    //   setMinPrice(getMinPrice(flights));
-    //   return;
-    // }
-    // if (value > getMaxPrice(flights)) {
-    //   setMaxPrice(getMaxPrice(flights));
-    //   return;
-    // }
-    setMaxPrice(value);
   };
 
   const sortFlights = (flights: Flight[], sortBy: SortingMethod) => {
@@ -297,7 +302,10 @@ function App() {
           <CheckBoxFilter
             key={airline}
             value={airline}
-            active={filterExist({ value: airline, group: Group.AIRLINE })}
+            active={filterExist({
+              value: airline,
+              group: Group.AIRLINE,
+            })}
             avaliable={filterFlights({
               flights,
               filters,
@@ -315,7 +323,7 @@ function App() {
         <hr></hr>
         <CheckBoxFilter
           value={"Без пересадок"}
-          active={filterExist({ value: true, group: Group.DIRECT })}
+          active={filterExist({ value: "direct", group: Group.DIRECTNESS })}
           avaliable={filterFlights({
             flights,
             filters,
@@ -325,8 +333,8 @@ function App() {
           )}
           onChange={() =>
             toggleFilter({
-              value: true,
-              group: Group.DIRECT,
+              value: "direct",
+              group: Group.DIRECTNESS,
               func: (flight: Flight) =>
                 flight.legs.every((leg) => leg.segments.length === 1),
             })
@@ -334,7 +342,7 @@ function App() {
         />
         <CheckBoxFilter
           value={"1 пересадка"}
-          active={filterExist({ value: false, group: Group.DIRECT })}
+          active={filterExist({ value: "indirect", group: Group.DIRECTNESS })}
           avaliable={filterFlights({
             flights,
             filters,
@@ -344,8 +352,8 @@ function App() {
           )}
           onChange={() =>
             toggleFilter({
-              value: false,
-              group: Group.DIRECT,
+              value: "indirect",
+              group: Group.DIRECTNESS,
               func: (flight: Flight) =>
                 flight.legs.some((leg) => leg.segments.length > 1),
             })
